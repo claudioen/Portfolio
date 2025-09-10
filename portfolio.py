@@ -122,7 +122,7 @@ with tabExperience:
         cv_btn_html = f'''
         <div class="row">
           <div class="col s12 right-align">
-            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text blue darken-3" target="_blank" rel="noopener">
+            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text orange darken-3" target="_blank" rel="noopener">
               <i class="material-icons left">file_download</i>Download CV
             </a>
           </div>
