@@ -4,8 +4,8 @@ from pyairtable import Api
 from datetime import datetime
 
 st.set_page_config(
-    page_title="Claudio Eghosasere Enobas Ese - Portfolio",
-    page_icon="📊",
+    page_title="Claudio E. Enobas Ese - Portfolio",
+    page_icon="👨🏾‍💻",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -98,9 +98,9 @@ profileHTML=f"""
                             <span class="card-title">About me</span>
                             <p>{profileDescription}</p>
                             <div class="card-action">
-                            <a href="https://www.linkedin.com/in/claudioenobas/" class="blue-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
-                            <a href="https://github.com/claudioen" class="blue-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
-                            <a href="https://x.com/" class="blue-text text-darken-3"><i class="fa-brands fa-x-twitter fa-2xl"></i></a>
+                                <a href="https://www.linkedin.com/in/claudioenobas/" class="blue-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
+                                <a href="https://github.com/claudioen" class="blue-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
+                                <a href="https://x.com/" class="blue-text text-darken-3"><i class="fa-brands fa-x-twitter fa-2xl"></i></a>
                             </div>
                         </div>
                     </div>
