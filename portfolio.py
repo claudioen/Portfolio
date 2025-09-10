@@ -142,7 +142,7 @@ with tabExperience:
         end = f.get('endYear') or f.get('endDate') or 'Present'
         desc = f.get('Description', '')
         techs = f.get('Technologies') or f.get('Skills') or []
-        projectLink = f.get('link_company', '')
+        companyLink = f.get('link_company', '')
         companyImageList = f.get('image_company') or []
         companyImageUrl = companyImageList[0]['url'] if companyImageList else '' 
 
