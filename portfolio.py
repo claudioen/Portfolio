@@ -70,6 +70,14 @@ xLink=profile['x']
 githubLink=profile['github']
 picture=profile['picture'][0]['url']
 
+# Try to read a CV attachment or a direct URL from the profile
+cvUrl = ''
+cv_att = profile.get('cv') or profile.get('CV') or profile.get('resume')
+if isinstance(cv_att, list) and cv_att:
+    cvUrl = cv_att[0].get('url', '')
+else:
+    cvUrl = profile.get('cvUrl', '')
+
 # Create the profile template with MaterializeCSS classes
 # https://materializecss.com/
 profileHTML=f"""
@@ -104,7 +112,54 @@ profileHTML=f"""
 st.html(profileHTML)
 
 # Create the Streamlit tabs
-tabSkils,tabPortfolio,tabContact =st.tabs(['My skills','My projects','Contact'])
+tabExperience,tabSkils,tabPortfolio,tabContact =st.tabs(['Experience','Skills','Projects','Contact'])
+
+#Display the Experience tab
+with tabExperience:
+    # Optional CV download button (keeps Materialize look)
+    if cvUrl:
+        cv_btn_html = f'''
+        <div class="row">
+          <div class="col s12 right-align">
+            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text blue darken-3" target="_blank" rel="noopener">
+              <i class="material-icons left">file_download</i>Download CV
+            </a>
+          </div>
+        </div>
+        '''
+        st.html(cv_btn_html)
+
+    # Build experience cards
+    exp_cards = ""
+    # Sort by most recent (change the field name to what you have in Airtable)
+    for rec in tblexperience.all(sort=['-startYear']):  # or '-startDate'
+        f = rec.get('fields', {})
+        role = f.get('Role', '')
+        company = f.get('Company', '')
+        location = f.get('Location', '')
+        start = f.get('startYear') or f.get('startDate', '')
+        end = f.get('endYear') or f.get('endDate') or 'Present'
+        desc = f.get('Description', '')
+        techs = f.get('Technologies') or f.get('Skills') or []
+
+        techchips = "".join([f'<div class="chip green lighten-4">{t}</div>' for t in techs]) if techs else ""
+
+        exp_cards += f"""
+        <div class="col s12 m6">
+          <div class="card large">
+            <div class="card-content">
+              <span class="card-title">{role} @ {company}</span>
+              <p class="grey-text">{location} • {start} – {end}</p>
+              <p>{desc}</p>
+              <div class="section">{techchips}</div>
+            </div>
+          </div>
+        </div>
+        """
+
+    expHTML = f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>'
+    st.html(expHTML)
+
 
 # Display the Skills tab
 with tabSkils:
