@@ -115,7 +115,7 @@ st.html(profileHTML)
 # Create the Streamlit tabs
 tabExperience,tabSkils,tabPortfolio,tabContact =st.tabs(['Experience','Skills','Projects','Contact'])
 
-#Display the Experience tab
+# Display the Experience tab
 with tabExperience:
     # Optional CV download button (keeps Materialize look)
     if cvUrl:
@@ -131,7 +131,8 @@ with tabExperience:
         st.html(cv_btn_html)
 
     # Build experience cards
-    exp_cards = ""
+    exp_cards = ""  # <-- inizializza
+
     # Sort by most recent (change the field name to what you have in Airtable)
     for rec in tblexperience.all(sort=['-startYear']):  # or '-startDate'
         f = rec.get('fields', {})
@@ -142,22 +143,30 @@ with tabExperience:
         end = f.get('endYear') or f.get('endDate') or 'Present'
         desc = f.get('Description', '')
         techs = f.get('Technologies') or f.get('Skills') or []
+
+        # New fields like in projects
         companyLink = f.get('link_company', '')
         companyImageList = f.get('image_company') or []
-        companyImageUrl = companyImageList[0]['url'] if companyImageList else '' 
+        companyImageUrl = companyImageList[0]['url'] if companyImageList else ''
 
         techchips = "".join([f'<div class="chip green lighten-4">{t}</div>' for t in techs]) if techs else ""
+
+        # Costruisci l'immagine/logo azienda in modo sicuro
+        if companyImageUrl:
+            if companyLink:
+                img_html = f'<a href="{companyLink}" target="_blank" rel="noopener"><img src="{companyImageUrl}"></a>'
+            else:
+                img_html = f'<img src="{companyImageUrl}">'
+        else:
+            img_html = ""
 
         exp_cards += f"""
         <div class="col s12 m6">
           <div class="card large">
             <div class="card-image" style="height:150px">
-              {'<a href="' + companyLink + '"><img src="' + companyImageUrl + '"></a>' if companyImageUrl else ''}
+              {img_html}
             </div>
             <div class="card-content">
-                <div class="card-image" style="height:200px">
-                    <a href="{projectLink}"><img src="{projectImageUrl}"></a>
-                </div> 
               <span class="card-title">{role} @ {company}</span>
               <p class="grey-text">{location} • {start} – {end}</p>
               <p>{desc}</p>
@@ -169,6 +178,7 @@ with tabExperience:
 
     expHTML = f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>'
     st.html(expHTML)
+
 
 
 # Display the Skills tab
