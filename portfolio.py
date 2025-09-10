@@ -59,6 +59,7 @@ tblprofile = api.table(AIRTABLE_BASE_ID, 'profile')
 tblprojects = api.table(AIRTABLE_BASE_ID, 'projects')
 tblskills = api.table(AIRTABLE_BASE_ID, 'skills')
 tblContacts = api.table(AIRTABLE_BASE_ID, 'contacts')
+tblexperience = api.table(AIRTABLE_BASE_ID, 'experience')
 
 # Load the values retrieved from the tables
 profile = tblprofile.all()[0]['fields']
