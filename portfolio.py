@@ -142,6 +142,8 @@ with tabExperience:
         end = f.get('endYear') or f.get('endDate') or 'Present'
         desc = f.get('Description', '')
         techs = f.get('Technologies') or f.get('Skills') or []
+        projectLink = project['link_company'] 
+        projectImageUrl = project['image_company'][0]['url']  
 
         techchips = "".join([f'<div class="chip green lighten-4">{t}</div>' for t in techs]) if techs else ""
 
@@ -149,6 +151,9 @@ with tabExperience:
         <div class="col s12 m6">
           <div class="card large">
             <div class="card-content">
+                <div class="card-image" style="height:200px">
+                    <a href="{projectLink}"><img src="{projectImageUrl}"></a>
+                </div> 
               <span class="card-title">{role} @ {company}</span>
               <p class="grey-text">{location} • {start} – {end}</p>
               <p>{desc}</p>
