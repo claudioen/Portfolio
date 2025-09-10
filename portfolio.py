@@ -183,54 +183,125 @@ with tabExperience:
 
 # Display the Skills tab
 with tabSkils:
-    skills=""
-    # Loop creating the Skills templates
-    for skill in tblskills.all(sort=['-Level']):
-        # st.write(skill['fields'])
-        skill=skill['fields']
-        skillName = skill['Name']
-        skillDescription = skill['Notes']    
-        skillLevel = skill['Level']
-        skillStars=""
-        # Create rating with stars
-        for i in range(1,6):
-            if i<=skillLevel:
-                # Full star
-                skillStars=skillStars+'<i class="material-icons">star</i>'
-            else:
-                # Empty star
-                skillStars=skillStars+'<i class="material-icons">star_border</i>'
-                
-        skillYears = skill['startYear']   
-        # Calculate years of experience
-        skillExperience = int(today) -int(skillYears)
-        # Skill card template
-        skillHTML = f"""                    
+    # Load skills once
+    raw_records = tblskills.all(sort=['-Level'])
+
+    # Normalize records (supports 'Categories' multi-select or 'Category' single-select)
+    items = []
+    for r in raw_records:
+        f = r.get('fields', {})
+        name = f.get('Name', '')
+        notes = f.get('Notes', '')
+        level = int(f.get('Level', 0) or 0)
+        start_year = f.get('startYear', '')
+        # Categories handling
+        cats = f.get('Categories')
+        if cats is None:
+            cats = f.get('Category')
+        if isinstance(cats, str):
+            cats = [cats]
+        if not isinstance(cats, list):
+            cats = []
+        cats = [c for c in cats if c] or ['Other']
+
+        items.append({
+            "name": name,
+            "notes": notes,
+            "level": level,
+            "start_year": start_year,
+            "categories": cats,
+            "primary": cats[0]  # first category as primary for grouping/sorting
+        })
+
+    if not items:
+        st.html('<p>No skills found.</p>')
+    else:
+        # Build available categories
+        all_categories = sorted({c for it in items for c in it["categories"]})
+
+        # UI controls
+        col1, col2 = st.columns([2,2])
+        with col1:
+            selected_cats = st.multiselect(
+                "Filter by categories",
+                options=all_categories,
+                default=[],
+                placeholder="Choose one or more categories"
+            )
+        with col2:
+            sort_choice = st.selectbox(
+                "Sort by",
+                [
+                    "Primary category (A→Z), Level (High→Low)",
+                    "Level (High→Low)",
+                    "Experience (High→Low)",
+                    "Name (A→Z)"
+                ],
+                index=0
+            )
+
+        # Apply category filter (keep skills having at least one selected category)
+        if selected_cats:
+            filtered = [it for it in items if any(c in selected_cats for c in it["categories"])]
+        else:
+            filtered = items
+
+        # Helpers
+        def years_of_exp(it):
+            try:
+                return int(today) - int(it["start_year"]) if it["start_year"] else -1
+            except Exception:
+                return -1
+
+        # Sorting
+        if sort_choice == "Level (High→Low)":
+            filtered.sort(key=lambda it: (-it["level"], it["name"].lower()))
+        elif sort_choice == "Experience (High→Low)":
+            filtered.sort(key=lambda it: (-years_of_exp(it), -it["level"], it["name"].lower()))
+        elif sort_choice == "Name (A→Z)":
+            filtered.sort(key=lambda it: it["name"].lower())
+        else:  # "Primary category (A→Z), Level (High→Low)"
+            filtered.sort(key=lambda it: (it["primary"].lower(), -it["level"], it["name"].lower()))
+
+        # Build HTML cards (same style)
+        skills_html = ""
+        for it in filtered:
+            # Stars
+            stars = "".join(
+                '<i class="material-icons">star</i>' if i <= it["level"] else '<i class="material-icons">star_border</i>'
+                for i in range(1, 6)
+            )
+            # Experience text
+            yrs = years_of_exp(it)
+            since_txt = f'{it["start_year"]} - More than {yrs} years' if yrs >= 0 else '—'
+            # Category chips
+            chips = "".join(f'<div class="chip blue lighten-4" style="margin-top:6px">{c}</div>' for c in it["categories"])
+
+            # Card template (keeps your style)
+            skillHTML = f"""                    
                 <div class="col s12 m4">
                     <div class="card small">
                         <div class="card-content">
-                            <span class="card-title">{skillName}</span>
-                            <p>{skillDescription}</p>
+                            <span class="card-title">{it["name"]}</span>
+                            <p>{it["notes"]}</p>
+                            <div class="section">{chips}</div>
                         </div>
                         <div class="card-action">
                             <div class="col s12 m6">
-                                <p>Level:<br/> {skillStars}</p>
+                                <p>Level:<br/>{stars}</p>
                             </div>
                             <div class="col s12 m6">
-                                <p fon>Since:<br/> {skillYears} - More than {skillExperience} years</p>
+                                <p>Since:<br/>{since_txt}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                    """
-        skills=skills+skillHTML
-    skillsHTML=f"""
-            <div class="row">            
-                {skills}       
-            </div>       
-        """     
-    # Display skills
-    st.html(skillsHTML) 
+            """
+            skills_html += skillHTML
+
+        container_html = f'<div class="row">{skills_html}</div>'
+        st.html(container_html)
+ 
 with tabPortfolio:       
     projects=""
     skillsHTML=""
