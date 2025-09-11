@@ -67,7 +67,7 @@ name=profile['Name']
 profileDescription=profile['Description']
 profileTagline=profile['tagline']
 linkedInLink=profile['linkedin']
-xLink=profile['x']
+emailLink=profile['email']
 githubLink=profile['github']
 picture=profile['picture'][0]['url']
 
@@ -100,7 +100,7 @@ profileHTML=f"""
                             <div class="card-action">
                                 <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/claudioenobas/" class="orange-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
                                 <a target="_blank" rel="noopener noreferrer" href="https://github.com/claudioen" class="orange-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
-                                <a target="_blank" rel="noopener noreferrer" href="https://x.com/" class="orange-text text-darken-3"><i class="fa-brands fa-x-twitter fa-2xl"></i></a>
+                                <a target="_blank" rel="noopener noreferrer" href="https://x.com/" class="orange-text text-darken-3"><i class="fa fa-envelope fa-2xl"></i></a>
                             </div>
                         </div>
                     </div>
