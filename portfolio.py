@@ -346,7 +346,7 @@ with tabSkils:
             yrs = years_of_exp(it)
             since_txt = f'{it["start_year"]} - More than {yrs} years' if yrs >= 0 else '—'
             # Category chips
-            chips = "".join(f'<div class="chip blue lighten-4" style="margin-top:6px">{c}</div>' for c in it["categories"])
+            chips = "".join(f'<div class="chip orange lighten-4" style="margin-top:6px">{c}</div>' for c in it["categories"])
 
             # Card template (keeps your style)
             skillHTML = f"""                    
@@ -389,7 +389,7 @@ with tabPortfolio:
         skillsHTML=[f'<div class="chip green lighten-4">{p}</div>' for p in projectSkils]
         skillsHTML="".join(skillsHTML)
         projectKnowledge = project['Knowledge']        
-        knowledgeHTML=[f'<div class="chip blue lighten-4">{p}</div>' for p in projectKnowledge]
+        knowledgeHTML=[f'<div class="chip orange lighten-4">{p}</div>' for p in projectKnowledge]
         knowledgeHTML="".join(knowledgeHTML)
         
         projectLink = project['link'] 
@@ -416,7 +416,7 @@ with tabPortfolio:
                             </div>
                         </div>  
                         <div class="card-action right-align">
-                        <a href="{projectLink}" class="waves-effect waves-light btn-large white-text blue darken-3"><i class="material-icons left">open_in_new</i>View</a>                        
+                        <a href="{projectLink}" class="waves-effect waves-light btn-large white-text orange darken-3"><i class="material-icons left">open_in_new</i>View</a>                        
                         </div>                                               
                     </div>
                 </div>
