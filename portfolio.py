@@ -83,7 +83,7 @@ else:
 # https://materializecss.com/
 profileHTML=f"""
 <div class="row">
-<h1>{name} <span class="-text text-darken-3">Portfolio</span> </h1>
+<h1>{name} <span class="orange-text text-darken-3">Portfolio</span> </h1>
 <h5>{profileTagline}</h5>
 </div>
 <div class="row">
