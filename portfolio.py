@@ -130,55 +130,126 @@ with tabExperience:
         '''
         st.html(cv_btn_html)
 
-    # Build experience cards
-    exp_cards = ""  # <-- inizializza
+    # View switch: Timeline or Cards
+    view_mode = st.selectbox("View", ["Timeline", "Cards"], index=0)
 
-    # Sort by most recent (change the field name to what you have in Airtable)
-    for rec in tblexperience.all(sort=['-startYear']):  # or '-startDate'
-        f = rec.get('fields', {})
-        role = f.get('Role', '')
-        company = f.get('Company', '')
-        location = f.get('Location', '')
-        start = f.get('startYear') or f.get('startDate', '')
-        end = f.get('endYear') or f.get('endDate') or 'Present'
-        desc = f.get('Description', '')
-        techs = f.get('Technologies') or f.get('Skills') or []
+    # Fetch records (sorted: most recent first)
+    records = tblexperience.all(sort=['-startYear'])  # or '-startDate'
 
-        # New fields like in projects
-        companyLink = f.get('link_company', '')
-        companyImageList = f.get('image_company') or []
-        companyImageUrl = companyImageList[0]['url'] if companyImageList else ''
+    # Reusable chips builder
+    def chips_html(values):
+        if not values:
+            return ""
+        return "".join(f'<div class="chip green lighten-4">{v}</div>' for v in values)
 
-        techchips = "".join([f'<div class="chip green lighten-4">{t}</div>' for t in techs]) if techs else ""
+    # TIMELINE CSS (light, Materialize-friendly)
+    tl_css = """
+    <style>
+      .timeline { position: relative; margin: 8px 0 16px 0; padding-left: 28px; }
+      .timeline:before { content:""; position:absolute; left:12px; top:0; bottom:0; width:2px; background:#e0e0e0; }
+      .timeline-item { position:relative; margin-bottom:18px; }
+      .timeline-dot { position:absolute; left:6px; top:8px; width:12px; height:12px; border-radius:50%; background:#1565c0; box-shadow:0 0 0 3px #e3f2fd inset; }
+      .timeline-card { margin-left:8px; }
+      .timeline-meta { font-size:0.95rem; color:#757575; margin-bottom:6px; }
+      .timeline-logo { height:56px; max-height:56px; object-fit:contain; }
+      .timeline .card.small { min-height:auto; }
+      @media (min-width: 992px) {
+        .timeline .card-content { padding-bottom:10px; }
+      }
+    </style>
+    """
 
-        # Costruisci l'immagine/logo azienda in modo sicuro
-        if companyImageUrl:
-            if companyLink:
-                img_html = f'<a href="{companyLink}" target="_blank" rel="noopener"><img src="{companyImageUrl}"></a>'
+    if view_mode == "Timeline":
+        st.html(tl_css)  # inject timeline CSS once
+
+        tl_html = '<div class="timeline">'
+        for rec in records:
+            f = rec.get('fields', {})
+            role = f.get('Role', '')
+            company = f.get('Company', '')
+            location = f.get('Location', '')
+            start = f.get('startYear') or f.get('startDate', '')
+            end = f.get('endYear') or f.get('endDate') or 'Present'
+            desc = f.get('Description', '')
+            techs = f.get('Technologies') or f.get('Skills') or []
+
+            companyLink = f.get('link_company', '')
+            companyImageList = f.get('image_company') or []
+            companyImageUrl = companyImageList[0]['url'] if companyImageList else ''
+
+            # Safe logo HTML (clickable if link available)
+            if companyImageUrl:
+                logo_html = f'<img class="timeline-logo" src="{companyImageUrl}">'
+                if companyLink:
+                    logo_html = f'<a href="{companyLink}" target="_blank" rel="noopener">{logo_html}</a>'
             else:
+                logo_html = ""
+
+            tl_html += f"""
+            <div class="timeline-item">
+              <span class="timeline-dot"></span>
+              <div class="timeline-card">
+                <div class="card small">
+                  <div class="card-content">
+                    <div class="row" style="margin-bottom:0;">
+                      <div class="col s12 m2">{logo_html}</div>
+                      <div class="col s12 m10">
+                        <span class="card-title">{role} @ {company}</span>
+                        <div class="timeline-meta">{location} • {start} – {end}</div>
+                        <p>{desc}</p>
+                        <div class="section">{chips_html(techs)}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """
+        tl_html += "</div>"
+        st.html(tl_html)
+
+    else:
+        # Fallback: original cards grid (unchanged look)
+        exp_cards = ""
+        for rec in records:
+            f = rec.get('fields', {})
+            role = f.get('Role', '')
+            company = f.get('Company', '')
+            location = f.get('Location', '')
+            start = f.get('startYear') or f.get('startDate', '')
+            end = f.get('endYear') or f.get('endDate') or 'Present'
+            desc = f.get('Description', '')
+            techs = f.get('Technologies') or f.get('Skills') or []
+
+            companyLink = f.get('link_company', '')
+            companyImageList = f.get('image_company') or []
+            companyImageUrl = companyImageList[0]['url'] if companyImageList else ''
+
+            if companyImageUrl:
                 img_html = f'<img src="{companyImageUrl}">'
-        else:
-            img_html = ""
+                if companyLink:
+                    img_html = f'<a href="{companyLink}" target="_blank" rel="noopener">{img_html}</a>'
+            else:
+                img_html = ""
 
-        exp_cards += f"""
-        <div class="col s12 m6">
-          <div class="card large">
-            <div class="card-image" style="height:150px">
-              {img_html}
+            exp_cards += f"""
+            <div class="col s12 m6">
+              <div class="card large">
+                <div class="card-image" style="height:150px">
+                  {img_html}
+                </div>
+                <div class="card-content">
+                  <span class="card-title">{role} @ {company}</span>
+                  <p class="grey-text">{location} • {start} – {end}</p>
+                  <p>{desc}</p>
+                  <div class="section">{chips_html(techs)}</div>
+                </div>
+              </div>
             </div>
-            <div class="card-content">
-              <span class="card-title">{role} @ {company}</span>
-              <p class="grey-text">{location} • {start} – {end}</p>
-              <p>{desc}</p>
-              <div class="section">{techchips}</div>
-            </div>
-          </div>
-        </div>
-        """
+            """
 
-    expHTML = f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>'
-    st.html(expHTML)
-
+        expHTML = f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>'
+        st.html(expHTML)
 
 
 # Display the Skills tab
