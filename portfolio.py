@@ -100,7 +100,7 @@ profileHTML=f"""
                             <div class="card-action">
                                 <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/claudioenobas/" class="orange-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
                                 <a target="_blank" rel="noopener noreferrer" href="https://github.com/claudioen" class="orange-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
-                                <a target="_blank" rel="noopener noreferrer" href="mailto:claudioenobas@gmail.com" class="orange-text text-darken-3"><i class="fa fa-envelope fa-2xl"></i></a>
+                                <a href="mailto:claudioenobas@gmail.com" class="orange-text text-darken-3"><i class="fa fa-envelope fa-2xl"></i></a>
                             </div>
                         </div>
                     </div>
