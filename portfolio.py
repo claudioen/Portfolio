@@ -416,7 +416,7 @@ with tabPortfolio:
                             </div>
                         </div>  
                         <div class="card-action right-align">
-                        <a href="{projectLink}" class="waves-effect waves-light btn-large white-text orange darken-3"><i class="material-icons left">open_in_new</i>View</a>                        
+                        <a target="_blank" rel="noopener noreferrer" href="{projectLink}" class="waves-effect waves-light btn-large white-text orange darken-3"><i class="material-icons left">open_in_new</i>View</a>                        
                         </div>                                               
                     </div>
                 </div>
