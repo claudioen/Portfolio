@@ -83,7 +83,7 @@ else:
 # https://materializecss.com/
 profileHTML=f"""
 <div class="row">
-<h1>{name} <span class="blue-text text-darken-3">Portfolio</span> </h1>
+<h1>{name} <span class="-text text-darken-3">Portfolio</span> </h1>
 <h5>{profileTagline}</h5>
 </div>
 <div class="row">
@@ -98,9 +98,9 @@ profileHTML=f"""
                             <span class="card-title">About me</span>
                             <p>{profileDescription}</p>
                             <div class="card-action">
-                                <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/claudioenobas/" class="blue-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
-                                <a target="_blank" rel="noopener noreferrer" href="https://github.com/claudioen" class="blue-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
-                                <a target="_blank" rel="noopener noreferrer" href="https://x.com/" class="blue-text text-darken-3"><i class="fa-brands fa-x-twitter fa-2xl"></i></a>
+                                <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/claudioenobas/" class="orange-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
+                                <a target="_blank" rel="noopener noreferrer" href="https://github.com/claudioen" class="orange-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
+                                <a target="_blank" rel="noopener noreferrer" href="https://x.com/" class="orange-text text-darken-3"><i class="fa-brands fa-x-twitter fa-2xl"></i></a>
                             </div>
                         </div>
                     </div>
