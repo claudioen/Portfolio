@@ -173,52 +173,72 @@ tabExperience,tabSkils,tabPortfolio,tabContact = st.tabs(['Experience','Skills',
 
 # Display the Experience tab
 with tabExperience:
-    # Optional CV download button (keeps Materialize look)
+    # Optional CV download button
     if cvUrl:
-        cv_btn_html = f'''
+        st.html(f'''
         <div class="row">
           <div class="col s12 right-align">
-            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text blue darken-3" target="_blank" rel="noopener">
+            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text orange darken-3" target="_blank" rel="noopener">
               <i class="material-icons left">file_download</i>Download CV
             </a>
           </div>
         </div>
-        '''
-        st.html(cv_btn_html)
+        ''')
 
-    # View switch: Timeline or Cards
     view_mode = st.selectbox("View", ["Timeline", "Cards"], index=0)
-
-    # Fetch records (sorted: most recent first)
     records = tblexperience.all(sort=['-startYear'])  # or '-startDate'
 
-    # Reusable chips builder
+    # helper chips
     def chips_html(values):
         if not values:
             return ""
-        return "".join(f'<div class="chip green lighten-4">{v}</div>' for v in values)
+        return "".join(f'<div class="chip green lighten-4" style="margin-right:6px">{v}</div>' for v in values)
 
-    # Timeline CSS (primary color injected above in theme_css)
-    tl_css = """
+    # ====== TIMELINE PRO CSS (alternating, responsive) ======
+    tl_pro_css = """
     <style>
-      .timeline { position: relative; margin: 8px 0 16px 0; padding-left: 28px; }
-      .timeline:before { content:""; position:absolute; left:12px; top:0; bottom:0; width:2px; background:#e0e0e0; }
-      .timeline-item { position:relative; margin-bottom:18px; }
-      .timeline-dot { position:absolute; left:6px; top:8px; width:12px; height:12px; border-radius:50%; }
-      .timeline-card { margin-left:8px; }
-      .timeline-meta { font-size:0.95rem; color:#757575; margin-bottom:6px; }
-      .timeline-logo { height:56px; max-height:56px; object-fit:contain; }
-      .timeline .card.small { min-height:auto; }
+      .tl-pro { position: relative; margin: 8px 0 24px 0; }
+      .tl-pro__rail { position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; background: #e0e0e0; transform: translateX(-50%); }
+      .tl-pro__item { position: relative; margin: 28px 0; }
+      .tl-pro__row { display: flex; gap: 18px; align-items: stretch; }
+      .tl-pro__col { flex: 1 1 0; max-width: 50%; }
+      .tl-pro__col--spacer { max-width: 50%; }
+      .tl-pro__dot { position: absolute; left: 50%; top: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--tl-primary, #1565c0); transform: translate(-50%, 0); box-shadow: 0 0 0 4px rgba(21,101,192,0.10) inset; }
+
+      /* Card look */
+      .tl-pro .card { border-radius: 16px; overflow: hidden; }
+      .tl-pro .card-content { padding-bottom: 14px; }
+      .tl-pro__meta { font-size: 0.95rem; color: #757575; margin: 2px 0 8px 0; }
+      .tl-pro__logo { width: 56px; height: 56px; border-radius: 50%; object-fit: contain; background: #fff; border: 1px solid #eee; }
+      .tl-pro__header { display: flex; gap: 14px; align-items: center; margin-bottom: 6px; }
+      .tl-pro__title { font-size: 1.25rem; margin: 0; }
+      .tl-pro__chips { display: flex; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+      .tl-pro__date { display: inline-block; font-size: 0.85rem; padding: 3px 10px; border-radius: 999px; background: rgba(21,101,192,0.10); color: #455a64; margin-bottom: 6px; }
+
+      /* Alternate sides on desktop */
       @media (min-width: 992px) {
-        .timeline .card-content { padding-bottom:10px; }
+        .tl-pro__item:nth-child(odd) .tl-pro__row { flex-direction: row; }
+        .tl-pro__item:nth-child(even) .tl-pro__row { flex-direction: row-reverse; }
+      }
+
+      /* Mobile: single column */
+      @media (max-width: 991px) {
+        .tl-pro__rail { left: 12px; transform: none; }
+        .tl-pro__dot { left: 12px; }
+        .tl-pro__row { margin-left: 28px; }
+        .tl-pro__col, .tl-pro__col--spacer { max-width: 100%; }
       }
     </style>
     """
 
-    if view_mode == "Timeline":
-        st.html(tl_css)  # inject timeline CSS once
+    # try to sync dot/chip highlight with Streamlit theme primary (if available)
+    primary_hex = st.get_option("theme.primaryColor") or "#1565c0"
+    st.html(f"<style>:root{{--tl-primary:{primary_hex};}}</style>")
 
-        tl_html = '<div class="timeline">'
+    if view_mode == "Timeline":
+        st.html(tl_pro_css)
+
+        html = ['<div class="tl-pro">', '<div class="tl-pro__rail"></div>']
         for rec in records:
             f = rec.get('fields', {})
             role = f.get('Role', '')
@@ -233,39 +253,46 @@ with tabExperience:
             companyImageList = f.get('image_company') or []
             companyImageUrl = companyImageList[0]['url'] if companyImageList else ''
 
-            # Safe logo HTML (clickable if link available)
-            if companyImageUrl:
-                logo_html = f'<img class="timeline-logo" src="{companyImageUrl}">'
-                if companyLink:
-                    logo_html = f'<a href="{companyLink}" target="_blank" rel="noopener">{logo_html}</a>'
-            else:
-                logo_html = ""
+            logo = f'<img class="tl-pro__logo" src="{companyImageUrl}">' if companyImageUrl else ''
+            if companyImageUrl and companyLink:
+                logo = f'<a href="{companyLink}" target="_blank" rel="noopener">{logo}</a>'
 
-            tl_html += f"""
-            <div class="timeline-item">
-              <span class="timeline-dot"></span>
-              <div class="timeline-card">
-                <div class="card small">
-                  <div class="card-content">
-                    <div class="row" style="margin-bottom:0;">
-                      <div class="col s12 m2">{logo_html}</div>
-                      <div class="col s12 m10">
-                        <span class="card-title">{role} @ {company}</span>
-                        <div class="timeline-meta">{location} • {start} – {end}</div>
-                        <p>{desc}</p>
-                        <div class="section">{chips_html(techs)}</div>
+            html.append("""
+            <div class="tl-pro__item">
+              <span class="tl-pro__dot"></span>
+              <div class="tl-pro__row">
+                <div class="tl-pro__col tl-pro__col--spacer"></div>
+                <div class="tl-pro__col">
+                  <div class="card small">
+                    <div class="card-content">
+                      <div class="tl-pro__header">
+                        {logo}
+                        <h3 class="tl-pro__title">{role} @ {company}</h3>
                       </div>
+                      <div class="tl-pro__date">{start} – {end}</div>
+                      <div class="tl-pro__meta">{location}</div>
+                      <p>{desc}</p>
+                      <div class="section tl-pro__chips">{chips}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            """
-        tl_html += "</div>"
-        st.html(tl_html)
+            """.format(
+                logo=logo,
+                role=role,
+                company=company,
+                start=start,
+                end=end,
+                location=location,
+                desc=desc,
+                chips=chips_html(techs)
+            ))
+        html.append("</div>")
+        st.html("".join(html))
 
     else:
-        # Fallback: original cards grid (unchanged look)
+        # Original cards (slightly tightened spacing)
         exp_cards = ""
         for rec in records:
             f = rec.get('fields', {})
@@ -276,24 +303,18 @@ with tabExperience:
             end = f.get('endYear') or f.get('endDate') or 'Present'
             desc = f.get('Description', '')
             techs = f.get('Technologies') or f.get('Skills') or []
-
             companyLink = f.get('link_company', '')
             companyImageList = f.get('image_company') or []
             companyImageUrl = companyImageList[0]['url'] if companyImageList else ''
 
-            if companyImageUrl:
-                img_html = f'<img src="{companyImageUrl}">'
-                if companyLink:
-                    img_html = f'<a href="{companyLink}" target="_blank" rel="noopener">{img_html}</a>'
-            else:
-                img_html = ""
+            img_html = f'<img src="{companyImageUrl}">' if companyImageUrl else ""
+            if companyImageUrl and companyLink:
+                img_html = f'<a href="{companyLink}" target="_blank" rel="noopener">{img_html}</a>'
 
             exp_cards += f"""
             <div class="col s12 m6">
               <div class="card large">
-                <div class="card-image" style="height:150px">
-                  {img_html}
-                </div>
+                <div class="card-image" style="height:150px">{img_html}</div>
                 <div class="card-content">
                   <span class="card-title">{role} @ {company}</span>
                   <p class="grey-text">{location} • {start} – {end}</p>
@@ -303,9 +324,7 @@ with tabExperience:
               </div>
             </div>
             """
-
-        expHTML = f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>'
-        st.html(expHTML)
+        st.html(f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>')
 
 # Display the Skills tab
 with tabSkils:
