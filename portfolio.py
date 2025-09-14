@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Claudio E. Enobas Ese - Portfolio",
     page_icon="👨🏾‍💻",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
     menu_items={ # remove items
         "Get help": None,
         "Report a bug": None,
