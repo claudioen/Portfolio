@@ -185,35 +185,45 @@ with tabExperience:
         </div>
         ''')
 
+    # View switch: Timeline or Cards
     view_mode = st.selectbox("View", ["Timeline", "Cards"], index=0)
+
+    # Fetch records (sorted most recent first)
     records = tblexperience.all(sort=['-startYear'])  # or '-startDate'
 
-    # helper chips
-    def chips_html(values):
-        if not values:
-            return ""
-        return "".join(f'<div class="chip green lighten-4" style="margin-right:6px">{v}</div>' for v in values)
-
-    # ====== TIMELINE PRO CSS (alternating, responsive) ======
+    # ====== TIMELINE PRO CSS (responsive & consistent) ======
     tl_pro_css = """
     <style>
-      .tl-pro { position: relative; margin: 8px 0 24px 0; }
+      /* container + center rail */
+      .tl-pro { position: relative; margin: 8px 0 24px 0; max-width: 1100px; }
       .tl-pro__rail { position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; background: #e0e0e0; transform: translateX(-50%); }
+
+      /* items */
       .tl-pro__item { position: relative; margin: 28px 0; }
       .tl-pro__row { display: flex; gap: 18px; align-items: stretch; }
       .tl-pro__col { flex: 1 1 0; max-width: 50%; }
       .tl-pro__col--spacer { max-width: 50%; }
-      .tl-pro__dot { position: absolute; left: 50%; top: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--tl-primary, #1565c0); transform: translate(-50%, 0); box-shadow: 0 0 0 4px rgba(21,101,192,0.10) inset; }
 
-      /* Card look */
+      /* dot */
+      .tl-pro__dot { position: absolute; left: 50%; top: 12px; width: 14px; height: 14px; border-radius: 50%;
+                     background: var(--tl-primary, #1565c0); transform: translate(-50%, 0);
+                     box-shadow: 0 0 0 4px rgba(21,101,192,0.10) inset; }
+
+      /* card look */
       .tl-pro .card { border-radius: 16px; overflow: hidden; }
-      .tl-pro .card-content { padding-bottom: 14px; }
-      .tl-pro__meta { font-size: 0.95rem; color: #757575; margin: 2px 0 8px 0; }
-      .tl-pro__logo { width: 56px; height: 56px; border-radius: 50%; object-fit: contain; background: #fff; border: 1px solid #eee; }
+      .tl-pro .card-content { padding: 18px 18px 14px 18px; }
+      .tl-pro__meta { font-size: .95rem; color: #757575; margin: 2px 0 8px 0; }
+      .tl-pro__logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid #eee; flex: 0 0 56px; }
       .tl-pro__header { display: flex; gap: 14px; align-items: center; margin-bottom: 6px; }
-      .tl-pro__title { font-size: 1.25rem; margin: 0; }
-      .tl-pro__chips { display: flex; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-      .tl-pro__date { display: inline-block; font-size: 0.85rem; padding: 3px 10px; border-radius: 999px; background: rgba(21,101,192,0.10); color: #455a64; margin-bottom: 6px; }
+      .tl-pro__title { font-size: 1.15rem; margin: 0; line-height: 1.25; }
+      .tl-pro__date { display: inline-block; font-size: .85rem; padding: 3px 10px; border-radius: 999px;
+                      background: rgba(21,101,192,0.10); color: #455a64; margin-bottom: 6px; }
+      .tl-pro__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .tl-pro__chips .chip { margin: 0; }
+
+      /* tidy text spacing */
+      .tl-pro .card-content p { margin: 0 0 6px 0; }
+      .tl-pro .card-content ul { margin: 6px 0 0 18px; }
 
       /* Alternate sides on desktop */
       @media (min-width: 992px) {
@@ -221,17 +231,20 @@ with tabExperience:
         .tl-pro__item:nth-child(even) .tl-pro__row { flex-direction: row-reverse; }
       }
 
-      /* Mobile: single column */
+      /* Mobile/tablet: single column */
       @media (max-width: 991px) {
         .tl-pro__rail { left: 12px; transform: none; }
         .tl-pro__dot { left: 12px; }
-        .tl-pro__row { margin-left: 28px; }
+        .tl-pro__row { margin-left: 28px; gap: 12px; }
         .tl-pro__col, .tl-pro__col--spacer { max-width: 100%; }
+        .tl-pro__col--spacer { display: none; }
+        .tl-pro__title { font-size: 1.05rem; }
+        .tl-pro__logo { width: 48px; height: 48px; }
       }
     </style>
     """
 
-    # try to sync dot/chip highlight with Streamlit theme primary (if available)
+    # sync with Streamlit theme primary color
     primary_hex = st.get_option("theme.primaryColor") or "#1565c0"
     st.html(f"<style>:root{{--tl-primary:{primary_hex};}}</style>")
 
@@ -257,7 +270,9 @@ with tabExperience:
             if companyImageUrl and companyLink:
                 logo = f'<a href="{companyLink}" target="_blank" rel="noopener">{logo}</a>'
 
-            html.append("""
+            chips = "".join(f'<div class="chip green lighten-4">{v}</div>' for v in techs)
+
+            html.append(f"""
             <div class="tl-pro__item">
               <span class="tl-pro__dot"></span>
               <div class="tl-pro__row">
@@ -278,21 +293,12 @@ with tabExperience:
                 </div>
               </div>
             </div>
-            """.format(
-                logo=logo,
-                role=role,
-                company=company,
-                start=start,
-                end=end,
-                location=location,
-                desc=desc,
-                chips=chips_html(techs)
-            ))
+            """)
         html.append("</div>")
         st.html("".join(html))
 
     else:
-        # Original cards (slightly tightened spacing)
+        # Fallback: original card grid
         exp_cards = ""
         for rec in records:
             f = rec.get('fields', {})
@@ -311,6 +317,8 @@ with tabExperience:
             if companyImageUrl and companyLink:
                 img_html = f'<a href="{companyLink}" target="_blank" rel="noopener">{img_html}</a>'
 
+            chips = "".join(f'<div class="chip green lighten-4">{v}</div>' for v in techs)
+
             exp_cards += f"""
             <div class="col s12 m6">
               <div class="card large">
@@ -319,13 +327,12 @@ with tabExperience:
                   <span class="card-title">{role} @ {company}</span>
                   <p class="grey-text">{location} • {start} – {end}</p>
                   <p>{desc}</p>
-                  <div class="section">{chips_html(techs)}</div>
+                  <div class="section">{chips}</div>
                 </div>
               </div>
             </div>
             """
         st.html(f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>')
-
 # Display the Skills tab
 with tabSkils:
     # Load skills once
