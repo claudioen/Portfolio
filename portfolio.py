@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from pyairtable import Api 
+from pyairtable import Api
 from datetime import datetime
 
 st.set_page_config(
@@ -8,7 +8,7 @@ st.set_page_config(
     page_icon="👨🏾‍💻",
     layout="wide",
     initial_sidebar_state="expanded",
-    menu_items={ # remove items
+    menu_items={
         "Get help": None,
         "Report a bug": None,
         "About": None,
@@ -29,15 +29,11 @@ st.markdown(HIDE_UI, unsafe_allow_html=True)
 today = datetime.today().strftime("%Y")
 
 # Load MaterializeCSS, Material Icons and Font Awesome libraries
-
-# https://materializecss.com/
 st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">', unsafe_allow_html=True)
-# https://materializecss.com/icons.html
 st.markdown('<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">', unsafe_allow_html=True)
-# https://fontawesome.com/start
 st.markdown('<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">', unsafe_allow_html=True)
 
-# Add custom styles to improve the design
+# Base custom styles (structure/spacing)
 customStyle ="""
             <style type="text/css">
             /*Increase the size of the cards*/
@@ -58,11 +54,58 @@ customStyle ="""
             }
             </style>
             """
-# Load the styles
 st.html(customStyle)
 
+# ===== Theme-aware accents (use Streamlit theme.primaryColor) =====
+def hex_to_rgb(hex_color: str):
+    h = hex_color.lstrip("#")
+    if len(h) == 3:
+        h = "".join([c*2 for c in h])
+    try:
+        r = int(h[0:2], 16)
+        g = int(h[2:4], 16)
+        b = int(h[4:6], 16)
+        return r, g, b
+    except Exception:
+        return 21, 101, 192  # fallback to #1565C0
+
+primary_hex = st.get_option("theme.primaryColor") or "#1565C0"
+pr, pg, pb = hex_to_rgb(primary_hex)
+
+theme_css = f"""
+<style>
+  /* Buttons that used to be 'orange darken-3' or 'blue darken-3' now follow the theme primary */
+  .btn.orange.darken-3, .btn-large.orange.darken-3,
+  .btn.blue.darken-3, .btn-large.blue.darken-3 {{
+    background-color: {primary_hex} !important;
+  }}
+
+  /* Links that used 'orange-text text-darken-3' now follow the theme primary */
+  .orange-text.text-darken-3, .blue-text.text-darken-3 {{
+    color: {primary_hex} !important;
+  }}
+
+  /* Chips with orange/blue lighten-4 use a soft alpha of the primary */
+  .chip.orange.lighten-4, .chip.blue.lighten-4 {{
+    background-color: rgba({pr},{pg},{pb}, 0.14) !important;
+  }}
+
+  /* Timeline dot follows the primary */
+  .timeline-dot {{
+    background: {primary_hex};
+    box-shadow: 0 0 0 3px rgba({pr},{pg},{pb}, 0.10) inset;
+  }}
+
+  /* Make sure icons inherit current text color in both modes */
+  .card .card-title, .card .material-icons, .card .fa {{
+    color: inherit;
+  }}
+</style>
+"""
+st.html(theme_css)
+
 # Load the API Key
-AIRTABLE_API_KEY = st.secrets.AIRTABLE_API_KEY # Create the token at this link https://airtable.com/create/tokens
+AIRTABLE_API_KEY = st.secrets.AIRTABLE_API_KEY  # Create the token at https://airtable.com/create/tokens
 
 # Select Airtable base id
 AIRTABLE_BASE_ID='appjIL3JLyUSiFiyg'
@@ -95,7 +138,6 @@ else:
     cvUrl = profile.get('cvUrl', '')
 
 # Create the profile template with MaterializeCSS classes
-# https://materializecss.com/
 profileHTML=f"""
 <div class="row">
 <h1>{name} <span class="orange-text text-darken-3">Portfolio</span> </h1>
@@ -124,11 +166,10 @@ profileHTML=f"""
         </div>
     </div>
             """
-# Display the generated HTML
 st.html(profileHTML)
 
 # Create the Streamlit tabs
-tabExperience,tabSkils,tabPortfolio,tabContact =st.tabs(['Experience','Skills','Projects','Contact'])
+tabExperience,tabSkils,tabPortfolio,tabContact = st.tabs(['Experience','Skills','Projects','Contact'])
 
 # Display the Experience tab
 with tabExperience:
@@ -157,13 +198,13 @@ with tabExperience:
             return ""
         return "".join(f'<div class="chip green lighten-4">{v}</div>' for v in values)
 
-    # TIMELINE CSS (light, Materialize-friendly)
+    # Timeline CSS (primary color injected above in theme_css)
     tl_css = """
     <style>
       .timeline { position: relative; margin: 8px 0 16px 0; padding-left: 28px; }
       .timeline:before { content:""; position:absolute; left:12px; top:0; bottom:0; width:2px; background:#e0e0e0; }
       .timeline-item { position:relative; margin-bottom:18px; }
-      .timeline-dot { position:absolute; left:6px; top:8px; width:12px; height:12px; border-radius:50%; background:#1565c0; box-shadow:0 0 0 3px #e3f2fd inset; }
+      .timeline-dot { position:absolute; left:6px; top:8px; width:12px; height:12px; border-radius:50%; }
       .timeline-card { margin-left:8px; }
       .timeline-meta { font-size:0.95rem; color:#757575; margin-bottom:6px; }
       .timeline-logo { height:56px; max-height:56px; object-fit:contain; }
@@ -266,7 +307,6 @@ with tabExperience:
         expHTML = f'<div class="row">{exp_cards}</div>' if exp_cards else '<div class="row"><div class="col s12"><p>No experience added yet.</p></div></div>'
         st.html(expHTML)
 
-
 # Display the Skills tab
 with tabSkils:
     # Load skills once
@@ -360,10 +400,9 @@ with tabSkils:
             # Experience text
             yrs = years_of_exp(it)
             since_txt = f'{it["start_year"]} - More than {yrs} years' if yrs >= 0 else '—'
-            # Category chips
+            # Category chips (use theme primary via CSS override)
             chips = "".join(f'<div class="chip orange lighten-4" style="margin-top:6px">{c}</div>' for c in it["categories"])
 
-            # Card template (keeps your style)
             skillHTML = f"""                    
                 <div class="col s12 m4">
                     <div class="card small">
@@ -387,28 +426,27 @@ with tabSkils:
 
         container_html = f'<div class="row">{skills_html}</div>'
         st.html(container_html)
- 
-with tabPortfolio:       
+
+with tabPortfolio:
     projects=""
     skillsHTML=""
     knowledgeHTML=""
     # Loop creating the project templates
     for project in tblprojects.all():
-        # st.write(skill['fields'])
         projectid= project['id']
         project=project["fields"]
-        projectName = project['Name']        
-        projectDescription = project['Description']    
+        projectName = project['Name']
+        projectDescription = project['Description']
         # Create the list of Skills and Knowledge
         projectSkils = project['skills']
         skillsHTML=[f'<div class="chip green lighten-4">{p}</div>' for p in projectSkils]
         skillsHTML="".join(skillsHTML)
-        projectKnowledge = project['Knowledge']        
+        projectKnowledge = project['Knowledge']
         knowledgeHTML=[f'<div class="chip orange lighten-4">{p}</div>' for p in projectKnowledge]
         knowledgeHTML="".join(knowledgeHTML)
-        
-        projectLink = project['link'] 
-        projectImageUrl = project['image'][0]['url']        
+
+        projectLink = project['link']
+        projectImageUrl = project['image'][0]['url']
         # Project card template
         projectHTML = f"""                    
                 <div class="col s12 m6">
@@ -441,9 +479,9 @@ with tabPortfolio:
             <div class="row">            
                 {projects}       
             </div>       
-        """     
-    # Display projects
-    st.html(projectsHTML)        
+        """
+    st.html(projectsHTML)
+
 with tabContact:
     st.info("If you think I can help you with some of your projects or entrepreneurships, send me a message I'll contact you as soon as I can. I'm always glad to help")
     with st.container(border=True):
@@ -456,4 +494,5 @@ with tabContact:
         # Create the contact record
         tblContacts.create({"Name":parName,"email":parEmail,"phoneNumber":parPhoneNumber,"Notes":parNotes})
         st.toast("Message sent")
+
 st.markdown('<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>', unsafe_allow_html=True)
