@@ -8,7 +8,22 @@ st.set_page_config(
     page_icon="👨🏾‍💻",
     layout="wide",
     initial_sidebar_state="expanded"
+    menu_items={ # remove items
+        "Get help": None,
+        "Report a bug": None,
+        "About": None,
+    },
 )
+
+# fallback "hard" via CSS to hide items
+HIDE_UI = """
+<style>
+#MainMenu {visibility: hidden;}
+header {visibility: hidden;}
+footer {visibility: hidden;}
+</style>
+"""
+st.markdown(HIDE_UI, unsafe_allow_html=True)
 
 # Load current year
 today = datetime.today().strftime("%Y")
