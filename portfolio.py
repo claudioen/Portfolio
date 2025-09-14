@@ -74,19 +74,19 @@ pr, pg, pb = hex_to_rgb(primary_hex)
 
 theme_css = f"""
 <style>
-  /* Buttons that used to be 'orange darken-3' or 'blue darken-3' now follow the theme primary */
-  .btn.orange.darken-3, .btn-large.orange.darken-3,
+  /* Buttons that used to be 'blue darken-3' or 'blue darken-3' now follow the theme primary */
+  .btn.blue.darken-3, .btn-large.blue.darken-3,
   .btn.blue.darken-3, .btn-large.blue.darken-3 {{
     background-color: {primary_hex} !important;
   }}
 
-  /* Links that used 'orange-text text-darken-3' now follow the theme primary */
-  .orange-text.text-darken-3, .blue-text.text-darken-3 {{
+  /* Links that used 'blue-text text-darken-3' now follow the theme primary */
+  .blue-text.text-darken-3, .blue-text.text-darken-3 {{
     color: {primary_hex} !important;
   }}
 
-  /* Chips with orange/blue lighten-4 use a soft alpha of the primary */
-  .chip.orange.lighten-4, .chip.blue.lighten-4 {{
+  /* Chips with blue/blue lighten-4 use a soft alpha of the primary */
+  .chip.blue.lighten-4, .chip.blue.lighten-4 {{
     background-color: rgba({pr},{pg},{pb}, 0.14) !important;
   }}
 
@@ -140,7 +140,7 @@ else:
 # Create the profile template with MaterializeCSS classes
 profileHTML=f"""
 <div class="row">
-<h1>{name} <span class="orange-text text-darken-3">Portfolio</span> </h1>
+<h1>{name} <span class="blue-text text-darken-3">Portfolio</span> </h1>
 <h5>{profileTagline}</h5>
 </div>
 <div class="row">
@@ -155,9 +155,9 @@ profileHTML=f"""
                             <span class="card-title">About me</span>
                             <p>{profileDescription}</p>
                             <div class="card-action">
-                                <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/claudioenobas/" class="orange-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
-                                <a target="_blank" rel="noopener noreferrer" href="https://github.com/claudioen" class="orange-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
-                                <a href="mailto:claudioenobas@gmail.com" class="orange-text text-darken-3"><i class="fa fa-envelope fa-2xl"></i></a>
+                                <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/claudioenobas/" class="blue-text text-darken-3"><i class="fa-brands fa-linkedin fa-2xl"></i></a>
+                                <a target="_blank" rel="noopener noreferrer" href="https://github.com/claudioen" class="blue-text text-darken-3"><i class="fa-brands fa-github fa-2xl"></i></a>
+                                <a href="mailto:claudioenobas@gmail.com" class="blue-text text-darken-3"><i class="fa fa-envelope fa-2xl"></i></a>
                             </div>
                         </div>
                     </div>
@@ -178,7 +178,7 @@ with tabExperience:
         cv_btn_html = f'''
         <div class="row">
           <div class="col s12 right-align">
-            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text orange darken-3" target="_blank" rel="noopener">
+            <a href="{cvUrl}" class="waves-effect waves-light btn-large white-text blue darken-3" target="_blank" rel="noopener">
               <i class="material-icons left">file_download</i>Download CV
             </a>
           </div>
@@ -401,7 +401,7 @@ with tabSkils:
             yrs = years_of_exp(it)
             since_txt = f'{it["start_year"]} - More than {yrs} years' if yrs >= 0 else '—'
             # Category chips (use theme primary via CSS override)
-            chips = "".join(f'<div class="chip orange lighten-4" style="margin-top:6px">{c}</div>' for c in it["categories"])
+            chips = "".join(f'<div class="chip blue lighten-4" style="margin-top:6px">{c}</div>' for c in it["categories"])
 
             skillHTML = f"""                    
                 <div class="col s12 m4">
@@ -442,7 +442,7 @@ with tabPortfolio:
         skillsHTML=[f'<div class="chip green lighten-4">{p}</div>' for p in projectSkils]
         skillsHTML="".join(skillsHTML)
         projectKnowledge = project['Knowledge']
-        knowledgeHTML=[f'<div class="chip orange lighten-4">{p}</div>' for p in projectKnowledge]
+        knowledgeHTML=[f'<div class="chip blue lighten-4">{p}</div>' for p in projectKnowledge]
         knowledgeHTML="".join(knowledgeHTML)
 
         projectLink = project['link']
@@ -469,7 +469,7 @@ with tabPortfolio:
                             </div>
                         </div>  
                         <div class="card-action right-align">
-                        <a target="_blank" rel="noopener noreferrer" href="{projectLink}" class="waves-effect waves-light btn-large white-text orange darken-3"><i class="material-icons left">open_in_new</i>View</a>                        
+                        <a target="_blank" rel="noopener noreferrer" href="{projectLink}" class="waves-effect waves-light btn-large white-text blue darken-3"><i class="material-icons left">open_in_new</i>View</a>                        
                         </div>                                               
                     </div>
                 </div>
